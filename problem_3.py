@@ -41,16 +41,14 @@ def transactionDisputeSystem(transactions_list, disputes_list, merchants_list):
 
         timestamps.sort(key=lambda x : x[1])
 
-        i, j = 0, 1
-        while i < j < len(timestamps):
-            (tx_id1, timestamp1) = timestamps[i]
-            (tx_id2, timestamp2) = timestamps[j]
-
-            if timestamp2 - timestamp1 <= 60:
-                disputes[tx_id1] = disputes[tx_id2] = 'DUPLICATE'
+        i = j = 0
+        while i < len(timestamps):
+            j = i + 1
+            while j < len(timestamps) and timestamps[j][1] - timestamps[j][1] <= 60:
+                disputes[timestamps[j][0]] = 'DUPLICATE'
+                disputes[timestamps[i][0]] = 'DUPLICATE'
                 j += 1
-            else:
-                i += 1
+            i += 1
 
     for tx_id, dispute in disputes.items():
         if dispute == 'DUPLICATE':
