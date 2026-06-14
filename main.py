@@ -1,40 +1,42 @@
 from collections import *
 import math
 
-def solution(logs, window_size, threshold):
-    # Monitor (merchant_id, status_code)
-    merchant_status = defaultdict(list)
-    for l in logs:
-        (timestamp, merchant_id, status_code, count) = l
-        merchant_status[(merchant_id, status_code)].append((timestamp, count))
+class AccountScheduler:
+    def __init__(self, accounts, locked_until):
+        self.accounts = defaultdict(int)
+        for ac in accounts:
+            self.accounts[ac] = 0
 
-    result = []
-    for key, value in merchant_status.items():
-        (merchant_id, status_code) = key
-        rolling_sum = 0
-        triggered = False
-        window = deque()
+        for acc_id, loc in locked_until.items():
+            self.accounts[acc_id] = loc
 
-        for timestamp, count in value:
-            cutoff = timestamp - window_size + 1
+        self.lru = OrderedDict()
+        for acc in self.accounts:
+            self.lru[acc] = None
 
-            while window and window[0][0] < cutoff:
-                rolling_sum -= window.popleft()[1]
+    def is_available(self, account_id, t):
+        return t >= self.accounts[account_id]
 
-            window.append((timestamp, count))
-            rolling_sum += count
+    def acquire(self, account_id, t, duration):
+        if not self.is_available(account_id, t):
+            return False
+        self.accounts[account_id] = max(t, self.accounts[account_id]) + duration
+        self.lru.move_to_end(account_id)
+        return True
 
-            if not triggered and rolling_sum >= threshold:
-                result.append((timestamp, merchant_id, status_code, 'TRIGGER'))
-                triggered = True
-            elif triggered and rolling_sum < threshold:
-                result.append((timestamp, merchant_id, status_code, 'RESOLVE'))
-                triggered = False        
-                
-    return result 
-    pass    
-    
+    def auto_acquire(self, t, duration):
+        for acc in list(self.lru):
+            if self.is_available(acc, t):
+                self.acquire(acc, t, duration)
+                return acc
+        return None
 
+    # move_to_end('a') → b <-> c <-> a (MRU)
+    # move_to_end('a', last=False) → a <-> b <-> c (move to front)
+    # popitem(last=True) → pop c (MRU), returns ('c', 3)
+    # popitem(last=False) → pop a (LRU), returns ('a', 1)
+    # next(iter(od)) → 'a' (peek LRU, no pop)
+    # next(reversed(od)) → 'c' (peek MRU, no pop)
 
 if __name__ == "__main__":
     # logs = [(1, 'A', 404, 2), (1, 'A', 404, 1), (2, 'B', 500, 3), (3, 'A', 404, 1), (4, 'B', 500, 1)]
