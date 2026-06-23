@@ -1,6 +1,6 @@
 # Stripe Intern Virtual Onsite Experience & Advice
 
-This document summarizes key insights, tips, and preparation strategies extracted from community discussions (specifically [this Reddit thread](https://www.reddit.com/r/csMajors/comments/1pl548f/stripe_new_grad_vo_virtual_onsite_experience/)) and engineering blogs regarding the **Stripe Software Engineer Intern Virtual Onsite**. 
+This document summarizes key insights, tips, and preparation strategies extracted from community discussions and engineering blogs regarding the **Stripe Software Engineer Intern Virtual Onsite**. 
 
 As an Intern candidate, your onsite will consist of **2 rounds** (60 minutes each):
 1. **Programming Exercise**
@@ -103,3 +103,19 @@ def safe_parse_json(json_string):
         print(f"Failed to parse JSON: {e}")
         return {}
 ```
+
+---
+
+## 4. References & Additional Reading
+
+For more details, check out these community experiences and official guidelines:
+1. **Reddit Discussions**:
+   - [Reddit Thread: Stripe New Grad VO Experience](https://www.reddit.com/r/csMajors/comments/1pl548f/stripe_new_grad_vo_virtual_onsite_experience/) (Source of original tips)
+   - [Reddit Thread: Stripe Summer Intern 2026 VO](https://www.reddit.com/r/csMajors/comments/1qczswk/stripe_summer_intern_2026usa/)
+   - [Reddit Thread: Stripe Tech Screen Rejection Reasons](https://www.reddit.com/r/csMajors/comments/1oimoz4/stripe_first_round_intern_interview/)
+2. **Official Stripe Documentation**:
+   - [Stripe API Reference: Pagination Guidelines](https://stripe.com/docs/api/pagination) (Details on cursor pagination using `starting_after`)
+   - [Stripe API Reference: Rate Limits](https://stripe.com/docs/rate-limits) (Handling HTTP 429 and retry headers)
+3. **Interview Prep Guides**:
+   - [Exponent: Stripe Software Engineer Interview Course & Blog](https://www.tryexponent.com/blog/stripe-software-engineer-interview-guide) (Deep dive into the Integration & Bug Squash rounds)
+   - [NorahQ Blog: Preparing for Stripe's Unique Onsite Loops](https://www.norahq.com/blog/stripe-swe-interview-preparation)
