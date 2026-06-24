@@ -49,16 +49,23 @@ def convert_payout_logs(json_log_path, csv_report_path):
     try:
         with open(json_log_path, 'r', encoding='utf-8') as f:
             logs = json.load(f)
-    except Exception as e:
-        print(f"Error when doing: {e}")
+    except (FileNotFoundError, json.JSONDecodeError) as e:
+        raise ValueError(f"Failed to read or parse input JSON file: {e}")
+
+    if not isinstance(logs, list):
+        raise ValueError("Input JSON must be a list of log entries")
 
     succesful_txs = []
+    skipped_count = 0
+
     # 2. Filter for entries where `status == "completed"`.
     for entry in logs:
         if not isinstance(entry, dict):
+            skipped_count += 1
             continue
 
         if entry.get('status') != 'completed':
+            skipped_count += 1
             continue
 
         payout_id = entry.get('payout_id')
@@ -75,17 +82,20 @@ def convert_payout_logs(json_log_path, csv_report_path):
         """
        
         if None in (payout_id, merchant_id, amount_cents, status, payout_timestamp):
+            skipped_count += 1
             continue
 
         if amount_cents <= 0:
+            skipped_count += 1
             continue
 
         amount_usd = amount_cents / 100.0
 
         try:
             payout_date = datetime.fromtimestamp(int(payout_timestamp), tz=timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
-        except Exception as e:
-            print("Error handling datetime: {e}")
+        except (ValueError, TypeError, OverflowError) as e:
+            print(f"Error handling datetime: {e}")
+            skipped_count += 1
             continue
 
         succesful_txs.append(
@@ -108,10 +118,10 @@ def convert_payout_logs(json_log_path, csv_report_path):
             writer = csv.DictWriter(f, fieldnames=headers)
             writer.writeheader()
             writer.writerows(succesful_txs)
-    except Exception as e:
-        print(f"Writing file error: {e}")
+    except IOError as e:
+        raise ValueError(f"Writing file error: {e}")
 
-    return (len(succesful_txs), len(logs) - len(succesful_txs))
+    return (len(succesful_txs), skipped_count)
 
 
 # ===================================================================
