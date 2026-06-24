@@ -45,7 +45,73 @@ from datetime import datetime, timezone
 
 def convert_payout_logs(json_log_path, csv_report_path):
     # WRITE YOUR CODE HERE
-    pass
+    # 1. Open and parse the JSON input file defensively.
+    try:
+        with open(json_log_path, 'r', encoding='utf-8') as f:
+            logs = json.load(f)
+    except Exception as e:
+        print(f"Error when doing: {e}")
+
+    succesful_txs = []
+    # 2. Filter for entries where `status == "completed"`.
+    for entry in logs:
+        if not isinstance(entry, dict):
+            continue
+
+        if entry.get('status') != 'completed':
+            continue
+
+        payout_id = entry.get('payout_id')
+        merchant_id = entry.get('merchant_id')
+        amount_cents = entry.get('amount_cents')
+        status = entry.get('status')
+        payout_timestamp = entry.get('payout_timestamp')
+
+        """
+        3. Check and skip any entry that has:
+        - Missing required keys (`payout_id`, `merchant_id`, `amount_cents`, `status`, `payout_timestamp`).
+        - A non-positive amount (`amount_cents <= 0`).
+        - An invalid or corrupted timestamp that cannot be parsed into an integer epoch.
+        """
+       
+        if None in (payout_id, merchant_id, amount_cents, status, payout_timestamp):
+            continue
+
+        if amount_cents <= 0:
+            continue
+
+        amount_usd = amount_cents / 100.0
+
+        try:
+            payout_date = datetime.fromtimestamp(int(payout_timestamp), tz=timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+        except Exception as e:
+            print("Error handling datetime: {e}")
+            continue
+
+        succesful_txs.append(
+            {
+                "payout_id": payout_id,
+                "merchant_id": merchant_id,
+                "amount_usd": amount_usd,
+                "payout_date": payout_date
+            }
+        )
+
+    
+    """
+    5. Write the valid rows to `csv_report_path` using Python's standard `csv` library.
+    - Header: `payout_id,merchant_id,amount_usd,payout_date`
+    """
+    headers = ["payout_id","merchant_id","amount_usd","payout_date"]
+    try:
+        with open(csv_report_path, 'w', newline="", encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=headers)
+            writer.writeheader()
+            writer.writerows(succesful_txs)
+    except Exception as e:
+        print(f"Writing file error: {e}")
+
+    return (len(succesful_txs), len(logs) - len(succesful_txs))
 
 
 # ===================================================================
