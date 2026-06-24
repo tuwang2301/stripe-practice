@@ -43,8 +43,37 @@ Output:
 """
 
 def validate_transactions(transactions, registered_merchants):
-    # WRITE YOUR CODE HERE
-    pass
+    # Parse each transaction record to a dictionary with named fields
+    parsed_transactions = []
+    for record in transactions:
+        transaction_id, merchant_id, amount_str, currency = record.split(",")
+        parsed_transactions.append({
+            "transaction_id": transaction_id,
+            "merchant_id": merchant_id,
+            "amount": float(amount_str),
+            "currency": currency,
+        })
+
+    supported_currencies = {"USD", "EUR", "GBP"}
+    invalid_results = []
+
+    for txn in parsed_transactions:
+        transaction_id = txn["transaction_id"]
+        merchant_id = txn["merchant_id"]
+        amount = txn["amount"]
+        currency = txn["currency"]
+
+        if merchant_id not in registered_merchants:
+            invalid_results.append(f"{transaction_id},UNREGISTERED_MERCHANT")
+            continue
+        if amount <= 0:
+            invalid_results.append(f"{transaction_id},INVALID_AMOUNT")
+            continue
+        if currency not in supported_currencies:
+            invalid_results.append(f"{transaction_id},UNSUPPORTED_CURRENCY")
+
+    return sorted(invalid_results)
+
 
 
 # ===================================================================
