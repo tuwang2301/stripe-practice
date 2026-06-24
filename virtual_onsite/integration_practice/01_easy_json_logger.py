@@ -39,10 +39,24 @@ def generate_transaction_report(json_log_path, csv_report_path):
     # WRITE YOUR CODE HERE
     # Remember to:
     # 1. Open and load the JSON file.
+    logs = []
+    with open(json_log_path) as f:
+        logs = json.loads(f.read())
+    filtered_logs = []
+    for l in logs:
+        if l["status"] == 'success':
     # 2. Convert epoch timestamp: datetime.fromtimestamp(epoch, tz=timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+            l['created_at_epoch'] = datetime.fromtimestamp(int(l['created_at_epoch']), tz=timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+            filtered_logs.append(l)
+
     # 3. Write lines to the CSV report file.
+    with open(csv_report_path, 'w') as f:
+        f.write('tx_id,merchant_id,amount,created_date\n')
+        for l in filtered_logs:
+            string = f"{l['tx_id']},{l['merchant_id']},{l['amount']},{l['created_at_epoch']}\n"
+            f.write(string)
     # 4. Return count of successful payments.
-    pass
+    return len(filtered_logs)
 
 
 # ===================================================================
