@@ -32,31 +32,77 @@ Tasks to perform:
 5. Return the number of successful transactions written to the report.
 """
 
+import csv
 import json
 from datetime import datetime, timezone
 
 def generate_transaction_report(json_log_path, csv_report_path):
-    # WRITE YOUR CODE HERE
-    # Remember to:
-    # 1. Open and load the JSON file.
-    logs = []
-    with open(json_log_path) as f:
-        logs = json.loads(f.read())
-    filtered_logs = []
-    for l in logs:
-        if l["status"] == 'success':
-    # 2. Convert epoch timestamp: datetime.fromtimestamp(epoch, tz=timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
-            l['created_at_epoch'] = datetime.fromtimestamp(int(l['created_at_epoch']), tz=timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
-            filtered_logs.append(l)
+    """
+    Parses a JSON transaction log file, filters for successful payments,
+    and outputs a clean, well-formatted CSV report.
+    
+    Ensures safe key access, defensive processing of malformed rows, 
+    and standard CSV library usage to handle special characters.
+    """
+    # 1. Open and load the JSON file defensively
+    try:
+        with open(json_log_path, 'r', encoding='utf-8') as f:
+            logs = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError) as e:
+        raise ValueError(f"Failed to read/parse input JSON file: {e}")
 
-    # 3. Write lines to the CSV report file.
-    with open(csv_report_path, 'w') as f:
-        f.write('tx_id,merchant_id,amount,created_date\n')
-        for l in filtered_logs:
-            string = f"{l['tx_id']},{l['merchant_id']},{l['amount']},{l['created_at_epoch']}\n"
-            f.write(string)
-    # 4. Return count of successful payments.
-    return len(filtered_logs)
+    if not isinstance(logs, list):
+        raise ValueError("Input JSON file must contain a JSON list of transaction logs")
+
+    # 2. Define expected CSV columns and filter records
+    csv_fields = ["tx_id", "merchant_id", "amount", "created_date"]
+    successful_txs = []
+
+    for entry in logs:
+        # Check that entry is a valid JSON object/dictionary
+        if not isinstance(entry, dict):
+            continue
+
+        # Filter for successful transactions
+        if entry.get("status") != "success":
+            continue
+
+        # Safely extract mandatory fields
+        tx_id = entry.get("tx_id")
+        merchant_id = entry.get("merchant_id")
+        amount = entry.get("amount")
+        epoch_sec = entry.get("created_at_epoch")
+
+        # Skip record if any required field is missing
+        if None in (tx_id, merchant_id, amount, epoch_sec):
+            continue
+
+        # Safe epoch to human-readable date conversion
+        try:
+            dt = datetime.fromtimestamp(int(epoch_sec), tz=timezone.utc)
+            created_date = dt.strftime("%Y-%m-%d %H:%M:%S")
+        except (ValueError, TypeError, OverflowError):
+            continue  # Skip rows with malformed timestamps
+
+        successful_txs.append({
+            "tx_id": tx_id,
+            "merchant_id": merchant_id,
+            "amount": amount,
+            "created_date": created_date
+        })
+
+    # 3. Write results using standard CSV library
+    try:
+        with open(csv_report_path, 'w', newline='', encoding='utf-8') as csv_file:
+            writer = csv.DictWriter(csv_file, fieldnames=csv_fields)
+            writer.writeheader()
+            writer.writerows(successful_txs)
+    except IOError as e:
+        raise ValueError(f"Failed to write CSV report: {e}")
+
+    # 4. Return count of successful payments
+    return len(successful_txs)
+
 
 
 # ===================================================================
