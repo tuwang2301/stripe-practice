@@ -115,7 +115,7 @@ def convert_payout_logs(json_log_path, csv_report_path):
     headers = ["payout_id","merchant_id","amount_usd","payout_date"]
     try:
         with open(csv_report_path, 'w', newline="", encoding='utf-8') as f:
-            writer = csv.DictWriter(f, fieldnames=headers)
+            writer = csv.DictWriter(f, fieldnames=headers) 
             writer.writeheader()
             writer.writerows(succesful_txs)
     except IOError as e:
