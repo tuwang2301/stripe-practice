@@ -50,3 +50,21 @@ We have prepared 4 advanced, stateful coding problems mimicking the Stripe onsit
 2. **`02_find_linked_users`**: Focuses on entity resolution, building undirected graphs, and calculating transitive closures using DFS/BFS.
 3. **`03_detect_trigger_resolve`**: Telecom/telemetry telemetry alerts requiring double-ended queues (`collections.deque`) and sliding window aggregations.
 4. **`04_payment_to_invoice`**: Business logic problem with priority-based matching (matching exact amounts, tie-breaking by dates/ID, and forgiveness-range matching).
+
+---
+
+## 4. Progressive Practice Labs
+
+To prepare step-by-step, use our curated training tracks under `virtual_onsite/`:
+
+### A. Programming Exercise Practice Track
+* **[01_easy_payment_validations.py](file:///D:/Projects/stripe-practice/virtual_onsite/programming_practice/01_easy_payment_validations.py)**: Basic CSV transaction validation logic.
+* **[02_medium_dispute_tracker.py](file:///D:/Projects/stripe-practice/virtual_onsite/programming_practice/02_medium_dispute_tracker.py)**: Stateful class to process disputes and compute merchant risks with priority logic.
+* **[03_hard_event_telemetry.py](file:///D:/Projects/stripe-practice/virtual_onsite/programming_practice/03_hard_event_telemetry.py)**: Time-series sliding window state updates.
+
+### B. Integration & API Practice Track
+* **[01_easy_json_logger.py](file:///D:/Projects/stripe-practice/virtual_onsite/integration_practice/01_easy_json_logger.py)**: Basic JSON log parser outputting clean CSV files.
+* **[01_b_defensive_log_converter.py](file:///D:/Projects/stripe-practice/virtual_onsite/integration_practice/01_b_defensive_log_converter.py)**: Advanced defensive parser demonstrating standard `csv` write safety and timestamp exception handling.
+* **[02_medium_api_paged_fetcher.py](file:///D:/Projects/stripe-practice/virtual_onsite/integration_practice/02_medium_api_paged_fetcher.py)**: API client implementing cursor pagination and HTTP 429 rate limit retries.
+* **[03_hard_webhook_signature_verifier.py](file:///D:/Projects/stripe-practice/virtual_onsite/integration_practice/03_hard_webhook_signature_verifier.py)**: Webhook parser executing header validation and cryptographic signature verification.
+
