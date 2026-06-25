@@ -6,12 +6,18 @@ Tài liệu này cung cấp các hướng dẫn cụ thể, chiến thuật tư�
 
 ## PHẦN 1: Chiến Thuật Lập Kế Hoạch & Prompt AI (Programming Exercise)
 
-Trong bài thi này, Stripe không chỉ đánh giá bạn có viết được code hay không, mà đánh giá **cách bạn hợp tác với AI** (giống như bạn đang quản lý một Junior Engineer).
+Trong bài thi này, Stripe không chỉ đánh giá bạn có viết được code hay không, mà đánh giá **cách bạn tương tác và hợp tác với AI** (giống như bạn đang quản lý một Junior Engineer). 
 
-### 1. Quy Trình 3 Bước Khi Nhận Đề Bài
-*   **Bước 1: Tự thiết kế bộ khung (Design First)**: Đọc đề bài, tự xác định các cấu trúc dữ liệu chính (ví dụ: dùng `defaultdict` cho tần suất, `deque` cho cửa sổ thời gian) và gõ các bình luận (comments) hoặc pseudocode mô tả thuật toán của bạn trước khi gọi AI.
-*   **Bước 2: Prompt chia nhỏ (Incremental Prompting)**: Tuyệt đối không prompt: *"Giải hộ tôi bài này"*. Hãy chia bài toán thành các hàm nhỏ (ví dụ: parse chuỗi, tính toán, định dạng đầu ra) và yêu cầu AI viết từng hàm.
-*   **Bước 3: Phản biện & Độc lập (Critical Oversight)**: Nếu AI sinh code quá phức tạp hoặc sử dụng các thư viện lạ, hãy bắt nó viết lại theo hướng đơn giản nhất.
+> [!IMPORTANT]
+> **Cập Nhật Mới Nhất 2026**: Vòng Programming Exercise truyền thống đã được thay thế bằng **AI Programming Exercise**. 
+> * Bạn sẽ làm việc trực tiếp trong môi trường tích hợp sẵn một AI Assistant (thường là một model có hiệu năng trung bình/cùi hơn các model thương mại lớn như Claude Opus hay GPT-4o).
+> * Mục tiêu của vòng này là kiểm tra **cách bạn dẫn dắt AI giải quyết vấn đề**. Việc copy-paste toàn bộ đề bài hoặc đưa code lỗi rồi bảo *"Sửa hộ tôi"* (raw debugging) được coi là một điểm trừ lớn. Thay vào đó, hãy coi AI là một cộng tác viên để cùng xây dựng giải pháp.
+
+### 1. Quy Trình 3 Bước Tương Tác Hợp Tác (Collaborative Prompting)
+*   **Bước 1: Sử dụng AI để làm rõ yêu cầu & Thuật toán (Understand & Verify)**: Đọc kỹ đề bài, tự suy nghĩ và đề xuất hướng giải quyết (Data Structures, Time/Space Complexity). Sau đó, viết prompt bảo AI xác nhận xem hướng đi đó có đúng đắn không, có lỗ hổng logic nào hay không.
+*   **Bước 2: Lập kế hoạch từng bước (Step-by-Step Blueprint)**: Yêu cầu AI cùng bạn xây dựng các bước triển khai cụ thể (ví dụ: bước 1 parse dữ liệu, bước 2 tracking state, bước 3 xử lý dispute). Xác nhận cấu trúc khung (Skeleton) trước khi code.
+*   **Bước 3: Gọi AI viết từng phần nhỏ & Kiểm soát chất lượng (Incremental Execution)**: Chỉ cho AI viết từng hàm helper nhỏ hoặc đoạn code logic cốt lõi. Luôn tự tay kiểm tra, tinh chỉnh và chạy thử unit test cục bộ sau mỗi hàm để đảm bảo tính chính xác cao nhất.
+
 
 ### 2. Bộ Mẫu Prompt (Prompt Templates) Nên Dùng
 
