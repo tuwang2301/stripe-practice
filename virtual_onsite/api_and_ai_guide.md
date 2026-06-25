@@ -138,20 +138,19 @@ def process_log_file(file_path):
     return transactions
 ```
 
-#### Ghi Báo Cáo Ra File CSV Mới
+#### Ghi Báo Cáo Ra File CSV Mới (Dùng Thư Viện csv Chuẩn)
 ```python
+import csv
+
 def write_report(file_path, data_list):
+    headers = ["merchant_id", "total_amount", "status"]
     try:
-        with open(file_path, 'w', encoding='utf-8') as file:
-            # Ghi dòng tiêu đề (Header)
-            file.write("merchant_id,total_amount,status\n")
-            
-            # Ghi từng dòng dữ liệu
-            for row in data_list:
-                # row: dict hoặc tuple chứa dữ liệu
-                line = f"{row['merchant_id']},{row['total_amount']},{row['status']}\n"
-                file.write(line)
+        with open(file_path, 'w', newline='', encoding='utf-8') as file:
+            writer = csv.DictWriter(file, fieldnames=headers)
+            writer.writeheader()
+            writer.writerows(data_list)
         print(f"Ghi báo cáo thành công ra file: {file_path}")
     except IOError as e:
         print(f"Lỗi ghi file: {e}")
 ```
+
