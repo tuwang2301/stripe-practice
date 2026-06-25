@@ -8,19 +8,22 @@ As an Intern candidate, your onsite will consist of **2 rounds** (60 minutes eac
 
 ---
 
-## 1. Programming Exercise Round
+## 1. AI Programming Exercise Round (Replaces Normal Programming Round)
 
 ### What to Expect
-* **Not LeetCode**: This round does not test competitive programming tricks, dynamic programming, or complex tree traversals. 
-* **Real-Life Scenario**: You are given a practical business scenario (similar to Stripe's Online Assessment) with input/output examples and functional requirements.
-* **Progressive Multi-Part**: The problem will have 3–4 progressive parts. The interviewer will reveal Part 2 only after you complete Part 1.
-* **Common Patterns**: Lots of string manipulation, parsing CSV-like records, dictionary/hash map aggregations, and state management.
+* **Integrated AI Assistant**: This is new for 2026. You will be coding inside an IDE containing an AI assistant. Note that the AI model provided is usually basic (not as powerful as GPT-4o or Claude Opus), so it might write code with subtle bugs or over-engineer solutions.
+* **Collaboration Evaluation**: Stripe is not just grading your final code, but evaluating **how you interact with the AI**. They want to see collaborative problem-solving, not blindly asking it to "solve this" or "fix this error."
+* **Progressive Multi-Part**: Same as the classic round—3–4 progressive parts. You will solve Part 1, then the interviewer (or test cases) will unlock Part 2.
+* **Language & Setup**: You pre-select your programming language before the interview. You are allowed to search Google for syntax.
 
 ### Key Advice
-* **Correctness > Optimality**: Stripe interviewers care that your code works, handles edge cases, and produces the correct output. An $O(N^2)$ solution that is clean and correct is infinitely better than an $O(N)$ solution that has bugs.
-* **Be Fast**: Because the problem is progressive, speed of implementation is crucial. Spend less time overthinking the "perfect" architecture and more time putting your ideas into working code.
-* **Test Incrementally**: Run your code after each change. Do not move to Part 2 until you have verified Part 1 with the test cases.
-* **Communicate Design Decisions**: Even though it's not a system design interview, explain why you choose certain data structures (e.g., using a map for $O(1)$ lookups).
+* **Collaborative Loop**: 
+  1. *Understand first*: Read the problem and design a high-level approach (e.g. data structures to use).
+  2. *Verify approach with AI*: Prompt the AI: *"I plan to use a dictionary mapping merchant IDs to a list of timestamps. Does this cover the time window edge cases correctly?"*
+  3. *Prompt for boilerplate/helpers*: Ask the AI to write small, specific helper functions (e.g., a parser for custom logs).
+  4. *Double check and debug*: Do not copy-paste code blindly. Analyze the AI's output, clean up any unnecessary complexity, and verify it locally.
+* **Correctness > Optimality**: Getting a clean, working solution is paramount. An $O(N^2)$ correct solution is preferred over a bugged $O(N)$ solution.
+
 
 ---
 
