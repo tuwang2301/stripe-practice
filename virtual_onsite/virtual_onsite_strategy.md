@@ -16,20 +16,22 @@ Stripe evaluates you based on the work you would do on the job. The engineering 
 
 ## 2. Onsite Interview Formats
 
-### A. Programming Exercise (60 mins)
-* **What it is**: A progressive, multi-part coding problem where requirements evolve step-by-step.
-* **AI-Enabled Variant**: You will use HackerRank's AI Coding Environment with an in-IDE assistant.
+### A. AI Programming Exercise (60 mins)
+* **What it is**: Replaces the traditional programming screening exercise. You work on a progressive, multi-part problem using HackerRank's AI Coding environment with a built-in assistant (often a basic/less-capable model).
+* **Language & Setup**: You pre-select your preferred language. Searching Google for syntax is fully allowed.
 * **Strategy**:
-  - **Plan before prompting**: Don't jump in cold. Design the data structures first, then direct the AI to implement them.
-  - **Critical Oversight**: Actively push back on over-engineered AI solutions. Scrutinize the code for logic flaws.
-  - **Incremental Testing**: Run your code after each small change. Ensure Part 1 is 100% correct before moving to Part 2.
+  - **Collaborate, Don't Outsource**: Treat the AI like a junior developer. Do not dump the whole prompt and ask it to write the code. Instead, explain your architectural idea and ask the AI to verify it first.
+  - **Verify Before Coding**: Tell the AI: *"I plan to use a hash map for tracking and a queue for time windows. Does this approach have any edge cases?"*
+  - **Incremental Growth**: Instruct the AI to write small helper functions. Verify and test Part 1 completely before asking the AI to adapt the code for Part 2.
 
 ### B. Integration (60 mins)
-* **What it is**: Writing code inside a larger, pre-existing system and integrating with external libraries.
+* **What it is**: The interviewer provides a pre-configured local environment and task description. You must call external or simulated APIs, fetch data, manipulate/process that data, and return/report results.
+* **Language & Setup**: Same as above (pre-selected language, Google searching for syntax allowed).
 * **Strategy**:
-  - **Read the spec and docs**: Spend the first 5 minutes carefully reading the provided documentation.
-  - **Protect the system**: Ensure that your integrations do not break existing functionality. Run regression tests.
-  - **Familiarity with HTTP/JSON**: Be prepared to parse JSON, make requests, or interact with basic API responses if needed.
+  - **Trace the API Flow**: Skim the API specification and mock URLs for the first 3-5 minutes.
+  - **Handle Network Realities**: Always write defensive code for HTTP failures, handle pagination (cursor-based), and handle rate limits (e.g. sleep 1s on HTTP 429).
+  - **Check CSV/JSON formatting**: Make sure to use standard modules (`csv`, `json`) rather than manual string formats to handle special characters cleanly.
+
 
 ### C. Bug Squash (60 mins - New Grad Only)
 * **What it is**: Navigating a large, unfamiliar codebase (typically an open-source project) to find and fix bugs.
