@@ -21,11 +21,19 @@ Trong bài thi này, Stripe không chỉ đánh giá bạn có viết được c
 
 ### 2. Bộ Mẫu Prompt (Prompt Templates) Nên Dùng
 
+#### Prompt Xác Nhận & Đánh Giá Hướng Giải Quyết (Verify Approach):
+> *"Tôi đang giải bài toán theo dõi rủi ro giao dịch của các merchant. Ý tưởng của tôi là sử dụng một hash map (`defaultdict`) để quản lý số lượng dispute của từng merchant, và một double-ended queue (`deque`) để lưu trữ timestamps của các sự kiện trong vòng 60 giây gần nhất nhằm kiểm tra giới hạn tần suất. Theo bạn, hướng đi này có tối ưu về mặt Time/Space Complexity không? Có trường hợp đặc biệt (edge case) nào mà tôi cần lưu ý trước khi triển khai không?"*
+
 #### Prompt Thiết Kế Bộ Khung (Skeleton):
-> *"Tôi đang thiết kế một class `TransactionEngine` bằng Python để theo dõi rủi ro của các giao dịch. Tôi muốn sử dụng một `defaultdict` để lưu trữ điểm số của merchant. Hãy sinh giúp tôi cấu trúc khung của class này với các hàm `__init__`, `process_transaction(tx_string)` và `get_risk_score(merchant_id)` kèm theo chú thích docstring."*
+> *"Dựa trên thuật toán ở trên, tôi muốn tự code phần xử lý chính. Hãy viết giúp tôi cấu trúc khung (boilerplate/skeleton) của class `TransactionEngine` bao gồm các hàm `__init__`, `process_transaction(tx_string)`, và `get_risk_score(merchant_id)`. Vui lòng chỉ cung cấp khung class, khai báo các biến lưu trữ state và chú thích docstring, chưa cần triển khai logic chi tiết bên trong các hàm."*
 
 #### Prompt Nhờ Viết Hàm Trợ Giúp (Helper Function):
 > *"Hãy viết một hàm helper nhận vào chuỗi CSV giao dịch dạng `'merchant_id,amount,customer_id,hour'` và parse nó thành một Python dictionary với các trường dữ liệu được ép kiểu chính xác (ví dụ: `amount` và `hour` phải là kiểu `int`). Hãy viết code thật đơn giản và tường minh."*
+
+#### Prompt Sửa Lỗi Hợp Tác (Collaborative Debugging):
+Nếu code chạy test bị lỗi, thay vì bảo AI sửa tất cả, hãy cùng phân tích:
+> *"Tôi đang gặp lỗi `[Copy Traceback Lỗi]` tại dòng xử lý tính toán. Tôi nghi ngờ nguyên nhân là do kiểu dữ liệu truyền vào đang là String thay vì Integer. Hãy phân tích và đề xuất 2 phương án khắc phục lỗi này mà không làm ảnh hưởng đến các hàm khác."*
+
 
 #### Prompt Sửa Lỗi (Debugging):
 Nếu code bị lỗi khi chạy test, hãy copy toàn bộ thông tin lỗi (Traceback) đưa cho AI kèm yêu cầu:
