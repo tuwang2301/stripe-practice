@@ -32,13 +32,14 @@ gantt
 
 ## 🎯 Chi Tiết Từng Ngày
 
-### 🟢 Ngày 1: Nắm Vững Chiến Thuật & Làm Quen AI Coding Assistant
-*   **Mục tiêu:** Hiểu rõ tiêu chí chấm điểm của Stripe và cách tương tác hiệu quả với AI.
+### 🟢 Ngày 1: Nắm Vững Chiến Thuật & Làm Quen Vòng AI Programming Exercise (Mới 2026)
+*   **Mục tiêu:** Hiểu rõ tiêu chí chấm điểm của Stripe, cơ chế phỏng vấn mới và cách hợp tác chặt chẽ với AI.
 *   **Nhiệm vụ:**
     1.  Đọc kỹ [stripe_prep_guide.md](file:///D:/Projects/stripe-practice/theory_and_playbooks/stripe_prep_guide.md) và [virtual_onsite_strategy.md](file:///D:/Projects/stripe-practice/virtual_onsite/virtual_onsite_strategy.md).
-    2.  Đọc tài liệu phỏng vấn chính thức của Stripe: [virtual_onsite_what_to_expect.md](file:///D:/Projects/stripe-practice/theory_and_playbooks/virtual_onsite_what_to_expect.md).
-    3.  Mở IDE của bạn (ví dụ: VS Code hoặc Cursor), cài đặt Copilot/Cursor và luyện tập cách gõ Prompt để sinh code, sau đó chủ động đọc lại code và chỉnh sửa các lỗi thiết kế mà AI mắc phải.
-*   **Kỹ năng cần luyện:** Cách chia nhỏ bài toán trước khi nhờ AI và cách giải thích tư duy thành tiếng (Think Out Loud).
+    2.  Đọc tài liệu phỏng vấn chính thức của Stripe: [virtual_onsite_what_to_expect.md](file:///D:/Projects/stripe-practice/theory_and_playbooks/virtual_onsite_what_to_expect.md) và [api_and_ai_guide.md](file:///D:/Projects/stripe-practice/virtual_onsite/api_and_ai_guide.md).
+    3.  Luyện tập quy trình "Collaborative Prompting": Tự nghĩ ra cấu trúc dữ liệu, dùng AI kiểm tra tính đúng đắn của thiết kế (Verify Approach), yêu cầu AI tạo khung code (Skeleton), sau đó mới viết các logic chi tiết. Tránh việc dán toàn bộ code lỗi và bảo AI tự sửa.
+*   **Kỹ năng cần luyện:** Prompting để đối thoại và kiểm chứng logic thay vì phó mặc hoàn toàn cho AI, cùng với kỹ năng Think Out Loud.
+
 
 ### 🔵 Ngày 2: Thiết Kế Stateful API & Thuật Toán Trực Quan (LRU Cache)
 *   **Mục tiêu:** Luyện tập thiết kế Class, quản lý trạng thái thời gian và cơ chế lưu trữ đệm.
