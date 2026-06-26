@@ -116,7 +116,14 @@ def fetch_charges_in_range(api_url, api_token, start_date_str, end_date_str):
             params["starting_after"] = next_cursor
             
         res = requests.get(url=api_url, headers=headers, params=params)
+        
+        # Handle Rate Limiting (HTTP 429)
+        if res.status_code == 429:
+            time.sleep(1)
+            continue
+            
         data = res.json()
+
         
         charges = data.get("data", []) if isinstance(data, dict) else []
         for charge in charges:
