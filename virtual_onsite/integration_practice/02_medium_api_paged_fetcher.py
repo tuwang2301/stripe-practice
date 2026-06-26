@@ -104,7 +104,12 @@ def fetch_charges_in_range(api_url, api_token, start_date_str, end_date_str):
     except ValueError as e:
         raise ValueError(f"Invalid date boundary format: {e}")
         
+    headers = {"Authorization": f"Bearer {api_token}"}
+    res = requests.get(url=api_url, headers=headers)
+    data = res.json()
+    
     return []
+
 
 
 
