@@ -35,7 +35,6 @@ Tasks:
 
 import time
 import requests
-import json
 from datetime import datetime
 
 # ===================================================================
@@ -99,65 +98,13 @@ requests.get = mock_get
 # STARTER CODE
 # ===================================================================
 def fetch_charges_in_range(api_url, api_token, start_date_str, end_date_str):
-    headers = {"Authorization": f"Bearer {api_token}"}
-    result = []
-    
-    # 1. Parse date boundaries once up front
     try:
         start_date = datetime.strptime(start_date_str, '%Y-%m-%d')
         end_date = datetime.strptime(end_date_str, '%Y-%m-%d')
     except ValueError as e:
         raise ValueError(f"Invalid date boundary format: {e}")
         
-    next_cursor = None
-    has_more = True
-    
-    # 2. Paginate while there are more results
-    while has_more:
-        params = {}
-        if next_cursor:
-            params["starting_after"] = next_cursor
-            
-        try:
-            res = requests.get(url=api_url, headers=headers, params=params)
-            
-            # 3. Handle Rate Limiting (HTTP 429)
-            if res.status_code == 429:
-                time.sleep(1)
-                continue
-                
-            res.raise_for_status()
-            data = res.json()
-        except requests.exceptions.RequestException as e:
-            print(f"Request failed: {e}")
-            break
-            
-        if not isinstance(data, dict):
-            break
-            
-        charges = data.get("data", [])
-        if not charges:
-            break
-            
-        # 4. Filter charges in date range
-        for charge in charges:
-            created_date_str = charge.get("created_date")
-            if not created_date_str:
-                continue
-            try:
-                created_date = datetime.strptime(created_date_str, '%Y-%m-%d')
-            except ValueError:
-                continue  # skip invalid date formats
-                
-            if start_date <= created_date <= end_date:
-                result.append(charge)
-                
-        # 5. Move cursor to the last charge's ID
-        next_cursor = charges[-1]["id"]
-        # Update has_more condition
-        has_more = data.get("has_more", False)
-        
-    return result
+    return []
 
 
 
