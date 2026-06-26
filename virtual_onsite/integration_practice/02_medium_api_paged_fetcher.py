@@ -98,33 +98,46 @@ requests.get = mock_get
 # STARTER CODE
 # ===================================================================
 def fetch_charges_in_range(api_url, api_token, start_date_str, end_date_str):
+    """
+    Fetches charges from a paginated API endpoint, handles rate limits,
+    and filters results within a specified date range (inclusive).
+    """
+    headers = {"Authorization": f"Bearer {api_token}"}
+    result = []
+    
+    # 1. Parse date boundaries once up front
     try:
         start_date = datetime.strptime(start_date_str, '%Y-%m-%d')
         end_date = datetime.strptime(end_date_str, '%Y-%m-%d')
     except ValueError as e:
         raise ValueError(f"Invalid date boundary format: {e}")
         
-    headers = {"Authorization": f"Bearer {api_token}"}
-    result = []
-    
     has_more = True
     next_cursor = None
     
+    # 2. Page through results
     while has_more:
         params = {}
         if next_cursor:
             params["starting_after"] = next_cursor
             
-        res = requests.get(url=api_url, headers=headers, params=params)
-        
-        # Handle Rate Limiting (HTTP 429)
-        if res.status_code == 429:
-            time.sleep(1)
-            continue
+        try:
+            res = requests.get(url=api_url, headers=headers, params=params)
             
-        data = res.json()
-
-        
+            # Handle Rate Limiting (HTTP 429)
+            if res.status_code == 429:
+                time.sleep(1)
+                continue
+                
+            res.raise_for_status()
+            data = res.json()
+        except requests.exceptions.RequestException as e:
+            print(f"Request failed: {e}")
+            break
+            
+        if not isinstance(data, dict):
+            break
+            
         charges = data.get("data", []) if isinstance(data, dict) else []
         for charge in charges:
             created_date_str = charge.get("created_date")
