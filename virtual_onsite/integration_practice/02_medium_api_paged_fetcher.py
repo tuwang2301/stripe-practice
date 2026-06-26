@@ -105,23 +105,32 @@ def fetch_charges_in_range(api_url, api_token, start_date_str, end_date_str):
         raise ValueError(f"Invalid date boundary format: {e}")
         
     headers = {"Authorization": f"Bearer {api_token}"}
-    res = requests.get(url=api_url, headers=headers)
-    data = res.json()
-    
     result = []
-    charges = data.get("data", []) if isinstance(data, dict) else []
-    for charge in charges:
-        created_date_str = charge.get("created_date")
-        if not created_date_str:
-            continue
-        try:
-            created_date = datetime.strptime(created_date_str, '%Y-%m-%d')
-        except ValueError:
-            continue
-        if start_date <= created_date <= end_date:
-            result.append(charge)
+    
+    has_more = True
+    next_cursor = None
+    
+    while has_more:
+        res = requests.get(url=api_url, headers=headers)
+        data = res.json()
+        
+        charges = data.get("data", []) if isinstance(data, dict) else []
+        for charge in charges:
+            created_date_str = charge.get("created_date")
+            if not created_date_str:
+                continue
+            try:
+                created_date = datetime.strptime(created_date_str, '%Y-%m-%d')
+            except ValueError:
+                continue
+            if start_date <= created_date <= end_date:
+                result.append(charge)
+                
+        # Temporarily set to False to prevent infinite loops before cursor logic
+        has_more = False
             
     return result
+
 
 
 
