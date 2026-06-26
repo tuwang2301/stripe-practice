@@ -111,7 +111,11 @@ def fetch_charges_in_range(api_url, api_token, start_date_str, end_date_str):
     next_cursor = None
     
     while has_more:
-        res = requests.get(url=api_url, headers=headers)
+        params = {}
+        if next_cursor:
+            params["starting_after"] = next_cursor
+            
+        res = requests.get(url=api_url, headers=headers, params=params)
         data = res.json()
         
         charges = data.get("data", []) if isinstance(data, dict) else []
@@ -126,8 +130,12 @@ def fetch_charges_in_range(api_url, api_token, start_date_str, end_date_str):
             if start_date <= created_date <= end_date:
                 result.append(charge)
                 
-        # Temporarily set to False to prevent infinite loops before cursor logic
-        has_more = False
+        if charges:
+            next_cursor = charges[-1]["id"]
+            has_more = data.get("has_more", False) if isinstance(data, dict) else False
+        else:
+            has_more = False
+
             
     return result
 
