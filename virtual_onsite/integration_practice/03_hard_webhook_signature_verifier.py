@@ -30,14 +30,46 @@ import hmac
 import hashlib
 
 def verify_webhook_signature(webhook_payload, signature_header, secret, current_time_epoch, max_drift_seconds=300):
-    # WRITE YOUR CODE HERE
-    # Remember to:
     # 1. Parse signature_header (split by comma, then split by '=')
+    t_val = None
+    v1_val = None
+    
+    parts = signature_header.split(',')
+    for part in parts:
+        if '=' not in part:
+            continue
+        key, val = part.split('=', 1)
+        key = key.strip()
+        val = val.strip()
+        if key == 't':
+            try:
+                t_val = int(val)
+            except ValueError:
+                return False
+        elif key == 'v1':
+            v1_val = val
+            
+    if t_val is None or v1_val is None:
+        return False
+        
     # 2. Check time drift: current_time_epoch - t > max_drift_seconds
+    # Also defensively check if t is in the future (though usually not specified, it's good practice)
+    if current_time_epoch - t_val > max_drift_seconds:
+        return False
+        
     # 3. Create signed payload: f"{t}.{webhook_payload}"
+    signed_payload = f"{t_val}.{webhook_payload}"
+    
     # 4. Compute hmac.new(secret_bytes, payload_bytes, hashlib.sha256).hexdigest()
+    try:
+        secret_bytes = secret.encode('utf-8')
+        payload_bytes = signed_payload.encode('utf-8')
+        computed_sig = hmac.new(secret_bytes, payload_bytes, hashlib.sha256).hexdigest()
+    except Exception:
+        return False
+        
     # 5. Use hmac.compare_digest(computed_sig, v1_sig) to check equality.
-    pass
+    return hmac.compare_digest(computed_sig, v1_val)
 
 
 # ===================================================================
