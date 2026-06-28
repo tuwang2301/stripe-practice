@@ -115,6 +115,9 @@ def aggregate_invoices(api_url, api_token, target_currency, start_epoch, end_epo
         if starting_after:
             params["starting_after"] = starting_after
         res = requests.get(api_url, headers=headers, params=params)
+        if res.status_code == 429:
+            time.sleep(1)
+            continue
         data = res.json()
         invoices = data.get("data", [])
         for inv in invoices:
