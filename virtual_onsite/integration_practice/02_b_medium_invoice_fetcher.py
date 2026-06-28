@@ -103,8 +103,8 @@ requests.get = mock_get
 # STARTER CODE
 # ===================================================================
 def aggregate_invoices(api_url, api_token, target_currency, start_epoch, end_epoch):
-    # WRITE YOUR CODE HERE
-    pass
+    target_currency = target_currency.lower()
+    headers = {"Authorization": f"Bearer {api_token}"}
 
 
 # ===================================================================
