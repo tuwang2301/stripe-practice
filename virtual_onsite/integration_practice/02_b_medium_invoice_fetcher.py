@@ -103,22 +103,37 @@ requests.get = mock_get
 # STARTER CODE
 # ===================================================================
 def aggregate_invoices(api_url, api_token, target_currency, start_epoch, end_epoch):
-    target_currency = target_currency.lower()
+    """
+    Fetches all invoices from a paginated API endpoint, filters them based on
+    currency, status, and creation epoch, and calculates the total sum of their amounts.
+    """
     headers = {"Authorization": f"Bearer {api_token}"}
     count = 0
     total_amount = 0
     starting_after = None
     has_more = True
     
+    target_currency = target_currency.lower()
+    
     while has_more:
         params = {}
         if starting_after:
             params["starting_after"] = starting_after
-        res = requests.get(api_url, headers=headers, params=params)
-        if res.status_code == 429:
-            time.sleep(1)
-            continue
-        data = res.json()
+            
+        try:
+            res = requests.get(api_url, headers=headers, params=params)
+            
+            # Handle rate limiting (429)
+            if res.status_code == 429:
+                time.sleep(1)
+                continue
+                
+            res.raise_for_status()
+            data = res.json()
+        except requests.exceptions.RequestException as e:
+            print(f"Catastrophic API failure: {e}")
+            return (0, 0)
+            
         invoices = data.get("data", [])
         for inv in invoices:
             currency = inv.get("currency", "").lower()
@@ -137,6 +152,7 @@ def aggregate_invoices(api_url, api_token, target_currency, start_epoch, end_epo
             has_more = data.get("has_more", False)
         else:
             has_more = False
+            
     return (count, total_amount)
 
 
