@@ -107,10 +107,14 @@ def aggregate_invoices(api_url, api_token, target_currency, start_epoch, end_epo
     headers = {"Authorization": f"Bearer {api_token}"}
     count = 0
     total_amount = 0
+    starting_after = None
     has_more = True
     
     while has_more:
-        res = requests.get(api_url, headers=headers)
+        params = {}
+        if starting_after:
+            params["starting_after"] = starting_after
+        res = requests.get(api_url, headers=headers, params=params)
         data = res.json()
         invoices = data.get("data", [])
         for inv in invoices:
@@ -125,7 +129,11 @@ def aggregate_invoices(api_url, api_token, target_currency, start_epoch, end_epo
                 count += 1
                 total_amount += amount_cents
                 
-        has_more = data.get("has_more", False)
+        if invoices:
+            starting_after = invoices[-1]["id"]
+            has_more = data.get("has_more", False)
+        else:
+            has_more = False
     return (count, total_amount)
 
 
