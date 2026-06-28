@@ -105,22 +105,27 @@ requests.get = mock_get
 def aggregate_invoices(api_url, api_token, target_currency, start_epoch, end_epoch):
     target_currency = target_currency.lower()
     headers = {"Authorization": f"Bearer {api_token}"}
-    res = requests.get(api_url, headers=headers)
-    data = res.json()
     count = 0
     total_amount = 0
-    invoices = data.get("data", [])
-    for inv in invoices:
-        currency = inv.get("currency", "").lower()
-        status = inv.get("status")
-        created_epoch = inv.get("created_epoch", 0)
-        amount_cents = inv.get("amount_cents", 0)
-        
-        if (currency == target_currency and 
-            status == "paid" and 
-            start_epoch <= created_epoch <= end_epoch):
-            count += 1
-            total_amount += amount_cents
+    has_more = True
+    
+    while has_more:
+        res = requests.get(api_url, headers=headers)
+        data = res.json()
+        invoices = data.get("data", [])
+        for inv in invoices:
+            currency = inv.get("currency", "").lower()
+            status = inv.get("status")
+            created_epoch = inv.get("created_epoch", 0)
+            amount_cents = inv.get("amount_cents", 0)
+            
+            if (currency == target_currency and 
+                status == "paid" and 
+                start_epoch <= created_epoch <= end_epoch):
+                count += 1
+                total_amount += amount_cents
+                
+        has_more = data.get("has_more", False)
     return (count, total_amount)
 
 
