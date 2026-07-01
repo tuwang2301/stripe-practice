@@ -107,53 +107,75 @@ def aggregate_invoices(api_url, api_token, target_currency, start_epoch, end_epo
     Fetches all invoices from a paginated API endpoint, filters them based on
     currency, status, and creation epoch, and calculates the total sum of their amounts.
     """
+    #Setup
     headers = {"Authorization": f"Bearer {api_token}"}
     count = 0
-    total_amount = 0
+    total_amount_sum = 0
     starting_after = None
     has_more = True
-    
-    target_currency = target_currency.lower()
-    
+
+    #Calling API
     while has_more:
         params = {}
+
         if starting_after:
-            params["starting_after"] = starting_after
-            
+            params = {"starting_after": starting_after}
+
         try:
-            res = requests.get(api_url, headers=headers, params=params)
-            
-            # Handle rate limiting (429)
-            if res.status_code == 429:
+            response = requests.get(url=api_url, headers=headers, params=params)
+
+            if response.status_code == 429:
                 time.sleep(1)
                 continue
-                
-            res.raise_for_status()
-            data = res.json()
-        except requests.exceptions.RequestException as e:
-            print(f"Catastrophic API failure: {e}")
+
+            response.raise_for_status()
+            data = response.json()
+
+        except Exception as e:
+            print(f'Error fetching data: {e}')
             return (0, 0)
-            
-        invoices = data.get("data", [])
-        for inv in invoices:
-            currency = inv.get("currency", "").lower()
-            status = inv.get("status")
-            created_epoch = inv.get("created_epoch", 0)
-            amount_cents = inv.get("amount_cents", 0)
-            
-            if (currency == target_currency and 
-                status == "paid" and 
-                start_epoch <= created_epoch <= end_epoch):
-                count += 1
-                total_amount += amount_cents
+
+        if not isinstance(data, dict):
+            break
+
+        if not data.get('data', []):
+            break
+
+        for inv in data.get('data', []):
+            if not isinstance(inv, dict):
+                continue
                 
-        if invoices:
-            starting_after = invoices[-1]["id"]
-            has_more = data.get("has_more", False)
-        else:
-            has_more = False
-            
-    return (count, total_amount)
+            # Check criteria defensively
+            currency = inv.get('currency')
+            if not isinstance(currency, str):
+                continue
+                
+            if currency.lower() != target_currency.lower():
+                continue
+
+            if inv.get('status') != 'paid':
+                continue
+
+            created_epoch = inv.get('created_epoch')
+            if not isinstance(created_epoch, (int, float)):
+                continue
+
+            if not (start_epoch <= created_epoch <= end_epoch):
+                continue
+
+            amount_cents = inv.get('amount_cents')
+            if not isinstance(amount_cents, (int, float)):
+                continue
+
+            count += 1
+            total_amount_sum += amount_cents
+
+        has_more = data.get('has_more')
+        starting_after = data.get('data')[-1].get('id')
+
+    #Return
+    return (count, total_amount_sum)
+
 
 
 # ===================================================================
