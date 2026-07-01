@@ -53,9 +53,16 @@ def verify_webhook_signature(webhook_payload, signature_header, secret, current_
         return False
 
     
-    # Check timestamp
-    if current_time_epoch - int(t_string) > max_drift_seconds:
+    # Check timestamp defensively
+    try:
+        t_val = int(t_string)
+    except ValueError:
         return False
+        
+    # Check time drift (absolute value protects against future-dated timestamps)
+    if abs(current_time_epoch - t_val) > max_drift_seconds:
+        return False
+
     
     # Prepare signature payload
     signature_payload = t_string + '.' + webhook_payload
