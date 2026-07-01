@@ -142,20 +142,35 @@ def aggregate_invoices(api_url, api_token, target_currency, start_epoch, end_epo
         if not data.get('data', []):
             break
 
-        for inv in data.get('data'):
-            
-            #Check criteria
-            if inv.get('currency').lower() != target_currency.lower():
+        for inv in data.get('data', []):
+            if not isinstance(inv, dict):
+                continue
+                
+            # Check criteria defensively
+            currency = inv.get('currency')
+            if not isinstance(currency, str):
+                continue
+                
+            if currency.lower() != target_currency.lower():
                 continue
 
             if inv.get('status') != 'paid':
                 continue
 
-            if not (start_epoch <= inv.get('created_epoch') <= end_epoch):
+            created_epoch = inv.get('created_epoch')
+            if not isinstance(created_epoch, (int, float)):
+                continue
+
+            if not (start_epoch <= created_epoch <= end_epoch):
+                continue
+
+            amount_cents = inv.get('amount_cents')
+            if not isinstance(amount_cents, (int, float)):
                 continue
 
             count += 1
-            total_amount_sum += inv.get('amount_cents')
+            total_amount_sum += amount_cents
+
 
         has_more = data.get('has_more')
         starting_after = data.get('data')[-1].get('id')
