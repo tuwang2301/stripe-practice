@@ -67,11 +67,17 @@ def verify_webhook_signature(webhook_payload, signature_header, secret, current_
     # Prepare signature payload
     signature_payload = t_string + '.' + webhook_payload
 
-    # Calculate signature
-    signature = hmac.new(secret.encode('utf-8'), signature_payload.encode('utf-8'), hashlib.sha256).hexdigest()
+    # Calculate signature defensively
+    try:
+        secret_bytes = secret.encode('utf-8')
+        payload_bytes = signature_payload.encode('utf-8')
+        signature = hmac.new(secret_bytes, payload_bytes, hashlib.sha256).hexdigest()
+    except Exception:
+        return False
 
-    #Return Output
+    # Return Output
     return hmac.compare_digest(signature, v1)
+
 
 
 # ===================================================================
