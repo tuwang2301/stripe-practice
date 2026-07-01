@@ -30,10 +30,13 @@ import hmac
 import hashlib
 
 def verify_webhook_signature(webhook_payload, signature_header, secret, current_time_epoch, max_drift_seconds=300):
-    # 1. Parse signature_header (split by comma, then split by '=')
-    t_val = None
-    v1_val = None
+    if not signature_header or not isinstance(signature_header, str):
+        return False
+        
+    t_string = None
+    v1 = None
     
+    # Parsing the signature header dynamically
     parts = signature_header.split(',')
     for part in parts:
         if '=' not in part:
@@ -42,34 +45,38 @@ def verify_webhook_signature(webhook_payload, signature_header, secret, current_
         key = key.strip()
         val = val.strip()
         if key == 't':
-            try:
-                t_val = int(val)
-            except ValueError:
-                return False
+            t_string = val
         elif key == 'v1':
-            v1_val = val
+            v1 = val
             
-    if t_val is None or v1_val is None:
+    if t_string is None or v1 is None:
         return False
-        
-    # 2. Check time drift: current_time_epoch - t > max_drift_seconds
-    # Also defensively check if t is in the future (though usually not specified, it's good practice)
-    if current_time_epoch - t_val > max_drift_seconds:
-        return False
-        
-    # 3. Create signed payload: f"{t}.{webhook_payload}"
-    signed_payload = f"{t_val}.{webhook_payload}"
+
     
-    # 4. Compute hmac.new(secret_bytes, payload_bytes, hashlib.sha256).hexdigest()
+    # Check timestamp defensively
+    try:
+        t_val = int(t_string)
+    except ValueError:
+        return False
+        
+    # Check time drift (absolute value protects against future-dated timestamps)
+    if abs(current_time_epoch - t_val) > max_drift_seconds:
+        return False
+    
+    # Prepare signature payload
+    signature_payload = t_string + '.' + webhook_payload
+
+    # Calculate signature defensively
     try:
         secret_bytes = secret.encode('utf-8')
-        payload_bytes = signed_payload.encode('utf-8')
-        computed_sig = hmac.new(secret_bytes, payload_bytes, hashlib.sha256).hexdigest()
+        payload_bytes = signature_payload.encode('utf-8')
+        signature = hmac.new(secret_bytes, payload_bytes, hashlib.sha256).hexdigest()
     except Exception:
         return False
-        
-    # 5. Use hmac.compare_digest(computed_sig, v1_sig) to check equality.
-    return hmac.compare_digest(computed_sig, v1_val)
+
+    # Return Output
+    return hmac.compare_digest(signature, v1)
+
 
 
 # ===================================================================
