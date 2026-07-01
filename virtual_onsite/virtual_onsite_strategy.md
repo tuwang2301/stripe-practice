@@ -67,4 +67,7 @@ To prepare step-by-step, use our curated training tracks under `virtual_onsite/`
 * **[01_b_defensive_log_converter.py](file:///D:/Projects/stripe-practice/virtual_onsite/integration_practice/01_b_defensive_log_converter.py)**: Advanced defensive parser demonstrating standard `csv` write safety and timestamp exception handling.
 * **[02_medium_api_paged_fetcher.py](file:///D:/Projects/stripe-practice/virtual_onsite/integration_practice/02_medium_api_paged_fetcher.py)**: API client implementing cursor pagination and HTTP 429 rate limit retries.
 * **[03_hard_webhook_signature_verifier.py](file:///D:/Projects/stripe-practice/virtual_onsite/integration_practice/03_hard_webhook_signature_verifier.py)**: Webhook parser executing header validation and cryptographic signature verification.
+* **[04_medium_subscription_billing_sync.py](file:///D:/Projects/stripe-practice/virtual_onsite/integration_practice/04_medium_subscription_billing_sync.py)**: Subscription sync engine retrieving data from paged active subscriptions and updating customer statuses via POST.
+* **[05_hard_multi_currency_payout_reconciler.py](file:///D:/Projects/stripe-practice/virtual_onsite/integration_practice/05_hard_multi_currency_payout_reconciler.py)**: Payout reconciler fetching transaction records via queries, evaluating totals, and triggering reconcile/flag status updates.
+
 
