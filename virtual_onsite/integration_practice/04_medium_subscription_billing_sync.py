@@ -9,7 +9,8 @@ because a customer's payment method has expired or been removed.
 Your task is to write a sync function to:
 1. Fetch all active subscriptions from a paginated GET `/v1/subscriptions` endpoint.
 2. For each active subscription, look up the customer's payment method status from GET `/v1/customers/{customer_id}`.
-3. If the customer does NOT have an active payment method (`has_active_payment_method == False`), update the subscription's status to `"past_due"` by making a POST request to `/v1/subscriptions/{subscription_id}` with the JSON payload `{"status": "past_due"}`.
+3. If the customer does NOT have an active payment method (`has_active_payment_method == False`),
+update the subscription's status to `"past_due"` by making a POST request to `/v1/subscriptions/{subscription_id}` with the JSON payload `{"status": "past_due"}`.
 4. Return a tuple: `(total_active_processed, total_past_due_updated)`.
 
 If any HTTP request encounters a rate limit (HTTP 429), sleep for 1 second and retry.
@@ -145,8 +146,107 @@ requests.post = lambda url, **kwargs: mock_request("POST", url, **kwargs)
 # STARTER CODE
 # ===================================================================
 def sync_subscription_billing(api_url, api_token):
-    # WRITE YOUR CODE HERE
-    pass
+    # Set it up
+    total_active_processed, total_past_due_updated = 0, 0
+    has_more = True
+    starting_after = None
+    headers = {'Authorization': f'Bearer {api_token}'}
+    
+    # 1. Use absolute URLs with API base URL pathing
+    api_url_clean = api_url.rstrip('/')
+    sub_endpoint = f'{api_url_clean}/v1/subscriptions'
+    cus_endpoint = f'{api_url_clean}/v1/customers'
+
+    # Fetching subscriptions
+    while has_more:
+        params = {}
+
+        if starting_after:
+            params = {'starting_after': starting_after}
+
+        try:
+            response = requests.get(url=sub_endpoint, headers=headers, params=params)
+            
+            if response.status_code == 429:
+                time.sleep(1)
+                continue
+
+            response.raise_for_status()
+            data = response.json()
+        except Exception as e:
+            print(f'Error fetching subscriptions page: {e}')
+            return (0, 0)
+        
+        if not isinstance(data, dict):
+            break
+
+        subscriptions = data.get('data', [])
+        if not subscriptions:
+            break
+
+        for sub in subscriptions:
+            if not isinstance(sub, dict):
+                continue
+            if sub.get('status') != 'active':
+                continue
+
+            customer_id = sub.get('customer_id')
+            sub_id = sub.get('id')
+            if not customer_id or not sub_id:
+                continue
+
+            cus_profile = None
+            skip_sub = False
+
+            # 2. Defensively wrap customer lookup request
+            while True:
+                url = f"{cus_endpoint}/{customer_id}"
+                try:
+                    res = requests.get(url=url, headers=headers)
+
+                    if res.status_code == 429:
+                        time.sleep(1)
+                        continue
+
+                    res.raise_for_status()
+                    cus_profile = res.json()
+                    break
+                except Exception as e:
+                    print(f'Catastrophic failure fetching customer {customer_id}: {e}. Skipping record.')
+                    skip_sub = True
+                    break
+
+            if skip_sub or not isinstance(cus_profile, dict):
+                continue
+
+            total_active_processed += 1
+
+            if cus_profile.get('has_active_payment_method') is True:
+                continue
+
+            # 3. Defensively wrap subscription status update request
+            while True:
+                url = f"{sub_endpoint}/{sub_id}"
+                try:
+                    res = requests.post(url=url, headers=headers, json={"status": "past_due"})
+
+                    if res.status_code == 429:
+                        time.sleep(1)
+                        continue
+
+                    res.raise_for_status()
+                    total_past_due_updated += 1
+                    break
+                except Exception as e:
+                    print(f'Catastrophic failure updating subscription {sub_id}: {e}. Skipping record.')
+                    break
+
+        starting_after = subscriptions[-1].get('id')
+        has_more = data.get('has_more', False)
+        
+    return (total_active_processed, total_past_due_updated)
+
+    
 
 
 # ===================================================================
