@@ -178,11 +178,18 @@ def reconcile_payouts(api_url, api_token):
         return {"reconciled": 0, "flagged": 0}
 
     for payout in payouts:
+        if not isinstance(payout, dict):
+            continue
 
         # For each payout, fetch all transactions
         payout_id = payout.get('id')
         payout_amount = payout.get('amount')
+        
+        if not isinstance(payout_id, str) or not isinstance(payout_amount, (int, float)):
+            continue
+            
         params = {'payout_id': payout_id}
+
 
         transactions = []
         skip_payout = False
