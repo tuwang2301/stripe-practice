@@ -213,10 +213,16 @@ def reconcile_payouts(api_url, api_token):
         if skip_payout:
             continue
             
+        if not isinstance(transactions, list):
+            continue
+            
         total_amount = 0
-
         for tran in transactions:
-            total_amount += tran.get('amount')
+            if not isinstance(tran, dict):
+                continue
+            amount = tran.get('amount')
+            if isinstance(amount, (int, float)):
+                total_amount += amount
 
         # Check criteria
         if total_amount == payout_amount:
