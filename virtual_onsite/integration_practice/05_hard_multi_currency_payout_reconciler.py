@@ -202,8 +202,13 @@ def reconcile_payouts(api_url, api_token):
                     continue
 
                 response.raise_for_status()
-                transactions = response.json().get('data')
+                res_json = response.json()
+                if isinstance(res_json, dict):
+                    transactions = res_json.get('data', [])
+                else:
+                    transactions = []
                 break
+
 
             except Exception as e:
                 print(f'Error fetching transactions: {e}')
