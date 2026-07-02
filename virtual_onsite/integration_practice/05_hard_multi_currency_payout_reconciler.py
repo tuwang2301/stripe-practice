@@ -144,8 +144,110 @@ requests.post = lambda url, **kwargs: mock_request("POST", url, **kwargs)
 # STARTER CODE
 # ===================================================================
 def reconcile_payouts(api_url, api_token):
-    # WRITE YOUR CODE HERE
-    pass
+    # Set up
+    clean_api_url = api_url.rstrip('/')
+    payouts_url = f'{clean_api_url}/v1/payouts'
+    transactions_url = f'{clean_api_url}/v1/transactions'
+    headers = {'Authorization': f'Bearer {api_token}'}
+    reconciled_count = 0
+    flagged_count = 0
+
+    payouts = []
+    # Fetch all payouts
+    while True:
+        try:
+            response = requests.get(url=payouts_url, headers=headers)
+
+            if response.status_code == 429:
+                time.sleep(1)
+                continue
+
+            response.raise_for_status()
+            payouts = response.json().get('data')
+            break
+
+        except Exception as e:
+            print(f'Error fetching payouts: {e}')
+            break
+
+    for payout in payouts:
+        # For each payout, fetch all transactions
+        payout_id = payout.get('id')
+        payout_amount = payout.get('amount')
+        params = {'payout_id': payout_id}
+
+        transactions = []
+        skip_payout = False
+        while True:
+            try:
+                response = requests.get(url=transactions_url, headers=headers, params=params)
+
+                if response.status_code == 429:
+                    time.sleep(1)
+                    continue
+
+                response.raise_for_status()
+                transactions = response.json().get('data')
+                break
+
+            except Exception as e:
+                print(f'Error fetching transactions: {e}')
+                skip_payout = True
+                break
+            
+        if skip_payout:
+            continue
+            
+        total_amount = 0
+
+        for tran in transactions:
+            total_amount += tran.get('amount')
+
+        # Check criteria
+        if total_amount == payout_amount:
+            reconcile_url = f'{payouts_url}/{payout_id}/reconcile'
+            while True:
+                try:
+                    response = requests.post(url=reconcile_url, headers=headers)
+
+                    if response.status_code == 429:
+                        time.sleep(1)
+                        continue
+
+                    response.raise_for_status()
+                    reconciled_count += 1
+                    break
+
+                except Exception as e:
+                    print(f'Error update reconcile: {e}')
+                    break
+
+        else:
+            flagged_url = f'{payouts_url}/{payout_id}/flag'
+            body = {
+                "reason": "amount_mismatch"
+            }
+            while True:
+                try:
+                    response = requests.post(url=flagged_url, headers=headers, json=body)
+
+                    if response.status_code == 429:
+                        time.sleep(1)
+                        continue
+
+                    response.raise_for_status()
+                    flagged_count += 1
+                    break
+
+                except Exception as e:
+                    print(f'Error update flagged: {e}')
+                    break
+
+    # Return output
+    return {
+        "reconciled": reconciled_count,
+        "flagged": flagged_count
+    }
 
 
 # ===================================================================
