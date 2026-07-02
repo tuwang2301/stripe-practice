@@ -163,14 +163,22 @@ def reconcile_payouts(api_url, api_token):
                 continue
 
             response.raise_for_status()
-            payouts = response.json().get('data')
+            res_json = response.json()
+            if isinstance(res_json, dict):
+                payouts = res_json.get('data', [])
+            else:
+                payouts = []
             break
 
         except Exception as e:
             print(f'Error fetching payouts: {e}')
             break
 
+    if not isinstance(payouts, list):
+        return {"reconciled": 0, "flagged": 0}
+
     for payout in payouts:
+
         # For each payout, fetch all transactions
         payout_id = payout.get('id')
         payout_amount = payout.get('amount')
