@@ -144,7 +144,18 @@ requests.post = lambda url, **kwargs: mock_request("POST", url, **kwargs)
 # STARTER CODE
 # ===================================================================
 def reconcile_payouts(api_url, api_token):
+    """
+    Reconciles pending payouts by validating sum of associated transaction amounts.
+    
+    Time Complexity:
+    - O(P * T) where P is the number of payouts, and T is the average number of transactions per payout.
+    - Each payout triggers a GET request to fetch transactions and a POST request to reconcile/flag.
+    
+    Space Complexity:
+    - O(T) to store transaction items for the current payout in memory.
+    """
     # Set up
+
     # 1. Clean base URL and configure request headers
     clean_api_url = api_url.rstrip('/')
     payouts_url = f'{clean_api_url}/v1/payouts'
