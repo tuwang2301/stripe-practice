@@ -145,6 +145,7 @@ requests.post = lambda url, **kwargs: mock_request("POST", url, **kwargs)
 # ===================================================================
 def reconcile_payouts(api_url, api_token):
     # Set up
+    # 1. Clean base URL and configure request headers
     clean_api_url = api_url.rstrip('/')
     payouts_url = f'{clean_api_url}/v1/payouts'
     transactions_url = f'{clean_api_url}/v1/transactions'
@@ -153,11 +154,12 @@ def reconcile_payouts(api_url, api_token):
     flagged_count = 0
 
     payouts = []
-    # Fetch all payouts
+    # 2. Fetch all pending payouts defensively (retry on HTTP 429)
     while True:
         try:
             response = requests.get(url=payouts_url, headers=headers)
 
+            # Handle rate limiting (429)
             if response.status_code == 429:
                 time.sleep(1)
                 continue
@@ -177,11 +179,12 @@ def reconcile_payouts(api_url, api_token):
     if not isinstance(payouts, list):
         return {"reconciled": 0, "flagged": 0}
 
+    # 3. Process each payout record
     for payout in payouts:
         if not isinstance(payout, dict):
             continue
 
-        # For each payout, fetch all transactions
+        # Extract attributes safely
         payout_id = payout.get('id')
         payout_amount = payout.get('amount')
         
@@ -190,9 +193,10 @@ def reconcile_payouts(api_url, api_token):
             
         params = {'payout_id': payout_id}
 
-
         transactions = []
         skip_payout = False
+        
+        # 4. Fetch associated transactions (retry on HTTP 429)
         while True:
             try:
                 response = requests.get(url=transactions_url, headers=headers, params=params)
@@ -209,8 +213,8 @@ def reconcile_payouts(api_url, api_token):
                     transactions = []
                 break
 
-
             except Exception as e:
+                # If transaction fetch fails, log the error and skip this payout record
                 print(f'Error fetching transactions: {e}')
                 skip_payout = True
                 break
@@ -221,6 +225,7 @@ def reconcile_payouts(api_url, api_token):
         if not isinstance(transactions, list):
             continue
             
+        # 5. Sum the amount of all associated transactions
         total_amount = 0
         for tran in transactions:
             if not isinstance(tran, dict):
@@ -229,7 +234,7 @@ def reconcile_payouts(api_url, api_token):
             if isinstance(amount, (int, float)):
                 total_amount += amount
 
-        # Check criteria
+        # 6. Reconcile if amounts match; flag if they mismatch
         if total_amount == payout_amount:
             reconcile_url = f'{payouts_url}/{payout_id}/reconcile'
             while True:
@@ -247,6 +252,7 @@ def reconcile_payouts(api_url, api_token):
                 except Exception as e:
                     print(f'Error update reconcile: {e}')
                     break
+
 
         else:
             flagged_url = f'{payouts_url}/{payout_id}/flag'
